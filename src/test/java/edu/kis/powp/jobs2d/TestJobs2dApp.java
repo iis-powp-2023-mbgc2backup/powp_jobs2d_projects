@@ -25,11 +25,17 @@ import edu.kis.powp.jobs2d.drivers.MouseDrawerListener;
 import edu.kis.powp.jobs2d.drivers.PositionLoggingDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.drivers.decorator.DistanceCountingDriver;
+import edu.kis.powp.jobs2d.drivers.decorator.RecordingDriver;
 import edu.kis.powp.jobs2d.drivers.decorator.RealWorldDriver;
 import edu.kis.powp.jobs2d.drivers.decorator.TransformationDriver;
 import edu.kis.powp.jobs2d.events.*;
 import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.transformations.TransformationFactory;
+import edu.kis.powp.jobs2d.features.CommandsFeature;
+import edu.kis.powp.jobs2d.features.DrawerFeature;
+import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.HeadUsage.HeadUsageFeature;
+import edu.kis.powp.jobs2d.features.RecordFeature;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -97,9 +103,9 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Line Simulator + distance log", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
         composite.addDriver(driver);
+        
+        driver = new DistanceCountingDriver(new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"));
 
-        driver = new DistanceCountingDriver(
-                new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"));
 
         deviceUsageManager = driver.getDeviceUsageManager();
         deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
@@ -136,9 +142,17 @@ public class TestJobs2dApp {
                 TransformationFactory.getCounterclockwiseRotation());
         DriverFeature.addDriver("Counterclockwise rotation Driver", counterClockwiseRotationDriver);
 
+        driver = new DistanceCountingDriver(new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"));
+        DriverFeature.addDriver("Special line Simulator", driver);
+        DriverFeature.addDriver("Logger + line driver", composite);
+
+        composite.addDriver(HeadUsageFeature.initHeadUsageFeature());
+
+ 
         Job2dDriver realWorldDriver = new RealWorldDriver(
                 new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), 50);
         DriverFeature.addDriver("Real world Driver", realWorldDriver);
+ 
         DriverFeature.updateDriverInfo();
     }
 
@@ -220,8 +234,16 @@ public class TestJobs2dApp {
                 setupLogger(app);
                 setupWindows(app);
                 app.setVisibility(true);
-                app.getFreePanel().addMouseListener(new MouseDrawerListener(DriverFeature.getDriverManager(),
-                        app.getFreePanel().getWidth(), app.getFreePanel().getHeight()));
+ 
+                app.getFreePanel().addMouseListener(
+                        new MouseDrawerListener(DriverFeature.getDriverManager(),
+                                app.getFreePanel().getWidth(),
+                                app.getFreePanel().getHeight())
+                );
+                app.getFreePanel().addMouseWheelListener(new MouseWheelModeFeature());
+                 app.getFreePanel().addMouseListener(new MouseMovingModeFeature());
+
+ 
             }
         });
     }
