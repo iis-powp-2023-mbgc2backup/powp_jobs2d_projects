@@ -13,7 +13,11 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
 	private final String name;
 
 	private ImmutableCompoundCommand(List<DriverCommand> commands, String name) {
-		this.commands = Collections.unmodifiableList(new ArrayList<>(commands));
+		List<DriverCommand> copiedCommands = new ArrayList<>();
+		for (DriverCommand command : commands) {
+			copiedCommands.add(command.deepCopy());
+		}
+		this.commands = Collections.unmodifiableList(copiedCommands);
 		this.name = name;
 	}
 
@@ -24,6 +28,11 @@ public class ImmutableCompoundCommand implements ICompoundCommand {
 	@Override
 	public void execute(Job2dDriver driver) {
 		commands.forEach(command -> command.execute(driver));
+	}
+
+	@Override
+	public DriverCommand deepCopy() {
+		return new ImmutableCompoundCommand(commands, name);
 	}
 
 	@Override

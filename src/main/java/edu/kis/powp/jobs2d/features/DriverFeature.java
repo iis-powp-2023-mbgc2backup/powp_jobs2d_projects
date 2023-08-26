@@ -6,7 +6,7 @@ import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
 import edu.kis.powp.jobs2d.events.DriverLabelSubscriber;
 
-public class DriverFeature {
+public class DriverFeature implements FeatureObject{
 
     private static final DriverManager driverManager = new DriverManager();
     private static Application app;
@@ -22,7 +22,8 @@ public class DriverFeature {
      * 
      * @param application Application context.
      */
-    public static void setupDriverPlugin(Application application) {
+    @Override
+    public void setup(Application application) {
         app = application;
         app.addComponentMenu(DriverFeature.class, "Drivers");
         driverManager.addSubscriber(new DriverLabelSubscriber());

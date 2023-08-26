@@ -10,7 +10,11 @@ import java.util.List;
 public final class ImmutableComplexCommand implements ICompoundCommand{
 
     private final List<DriverCommand> ListOfCommands;
-    public ImmutableComplexCommand(Iterator iterator){
+
+    private final String name;
+
+    public ImmutableComplexCommand(Iterator iterator, String name){
+        this.name = name;
         List<DriverCommand> tempList = new ArrayList<>();
         while(iterator.hasNext()){
             DriverCommand command = (DriverCommand) iterator.next();
@@ -23,12 +27,18 @@ public final class ImmutableComplexCommand implements ICompoundCommand{
                 tempList.add(setPositionCommand);
             }
             else if(command instanceof ICompoundCommand){
-                ImmutableComplexCommand immutableComplexCommand = new ImmutableComplexCommand(((ImmutableComplexCommand) command).iterator());
+                ImmutableComplexCommand immutableComplexCommand = new ImmutableComplexCommand(((ImmutableComplexCommand) command).iterator(), name);
                 tempList.add(immutableComplexCommand);
             }
         }
         this.ListOfCommands = Collections.unmodifiableList(tempList);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
     @Override
     public void execute(Job2dDriver driver) {
         Iterator<DriverCommand> iterator = this.iterator();
@@ -39,5 +49,11 @@ public final class ImmutableComplexCommand implements ICompoundCommand{
     @Override
     public Iterator<DriverCommand> iterator() {
         return this.ListOfCommands.iterator();
+    }
+
+    @Override
+    public ICompoundCommand deepCopy() {
+        ImmutableComplexCommand copy = new ImmutableComplexCommand(ListOfCommands.iterator(), name);
+        return copy;
     }
 }
