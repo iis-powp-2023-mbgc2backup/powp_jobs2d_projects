@@ -1,21 +1,25 @@
 package edu.kis.powp.jobs2d.command.manager;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.ICommandVisitor;
+import edu.kis.powp.jobs2d.drivers.DriverManager;
+import edu.kis.powp.jobs2d.features.DriverFeature;
 import edu.kis.powp.jobs2d.command.ImmutableCompoundCommand;
 import edu.kis.powp.observer.Publisher;
+import edu.kis.powp.observer.Subscriber;
 
 /**
  * Driver command Manager.
  */
-public class CommandManager {
+public class CommandManager implements ICommandManager {
     private DriverCommand currentCommand = null;
+    private DriverManager driverManager = DriverFeature.getDriverManager();
 
     private Publisher changePublisher = new Publisher();
+    private List<Subscriber> deletedObservers = new ArrayList<>();
 
     /**
      * Set current command.
@@ -37,7 +41,6 @@ public class CommandManager {
         ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder(name);
         builder.addCommands(commandList);
         setCurrentCommand(builder.build());
-
     }
 
     /**
@@ -62,5 +65,21 @@ public class CommandManager {
 
     public Publisher getChangePublisher() {
         return changePublisher;
+    }
+
+    public void deleteObservers() {
+        deletedObservers = new ArrayList<>(changePublisher.getSubscribers());
+        changePublisher.clearObservers();
+    }
+
+    public void resetObservers() {
+        for (Subscriber observer : deletedObservers) {
+            changePublisher.addSubscriber(observer);
+        }
+    }
+
+    public void runCommand() {
+        DrawingThread thread = new DrawingThread(currentCommand, driverManager.getCurrentDriver());
+        CompletableFuture<Void> cf = CompletableFuture.runAsync(thread);
     }
 }

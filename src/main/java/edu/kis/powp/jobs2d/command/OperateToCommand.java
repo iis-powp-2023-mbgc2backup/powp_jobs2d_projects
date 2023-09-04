@@ -19,6 +19,14 @@ public class OperateToCommand implements DriverCommand {
         this(operateToCommand.posX, operateToCommand.posY);
     }
 
+    public int getPosX() {
+        return posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
     @Override
     public void execute(Job2dDriver driver) {
         driver.operateTo(posX, posY);
@@ -29,19 +37,8 @@ public class OperateToCommand implements DriverCommand {
         visitor.visit(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-
-        if (!(o instanceof OperateToCommand)) {
-            return false;
-        }
-
-        OperateToCommand c = (OperateToCommand) o;
-
-        return Integer.compare(posX, c.posX) == 0
-                && Integer.compare(posY, c.posY) == 0;
+    public DriverCommand deepCopy() {
+        DriverCommand copy = new OperateToCommand(posX, posY);
+        return copy;
     }
 }

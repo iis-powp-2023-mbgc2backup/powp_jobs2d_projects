@@ -22,6 +22,6 @@ public class TransformationFactory {
     }
 
     public static Transformation getHalfScale() {
-        return new Scale(0.5D);
+        return new Scale(0.50);
     }
 }

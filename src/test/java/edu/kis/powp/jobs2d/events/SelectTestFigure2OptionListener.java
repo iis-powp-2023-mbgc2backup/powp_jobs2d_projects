@@ -16,6 +16,6 @@ public class SelectTestFigure2OptionListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        FiguresJoe.figureScript2(driverManager.getCurrentDriver());
+        new Thread(() -> FiguresJoe.figureScript2(driverManager.getCurrentDriver())).start();
     }
 }
