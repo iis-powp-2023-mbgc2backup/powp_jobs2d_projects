@@ -1,8 +1,6 @@
 package edu.kis.powp.jobs2d.command;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class DeepCopyCommandVisitor implements ICommandVisitor {
     private DriverCommand deepCopiedCommand;
@@ -11,15 +9,14 @@ public class DeepCopyCommandVisitor implements ICommandVisitor {
     @Override
     public void visit(ICompoundCommand command) {
         Iterator<DriverCommand> iterator = command.iterator();
-        List<DriverCommand> deepCopiedCompoundCommands = new ArrayList<>();
+        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder("immutableCompundCommandBuilder");
 
         while(iterator.hasNext()) {
-            iterator.next().accept(this);
-            deepCopiedCompoundCommands.add(this.deepCopiedCommand);
-        }
+            DriverCommand driverCommand = (DriverCommand) iterator.next();
+            driverCommand.accept(this);
+            builder.addCommand(driverCommand);
 
-        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder("immutableCompundCommandBuilder");
-        builder.addCommands(deepCopiedCompoundCommands);
+        }
         this.immutableCompoundCommand = builder.build();
     }
 

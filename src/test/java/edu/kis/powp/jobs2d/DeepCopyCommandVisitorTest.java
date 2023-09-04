@@ -2,36 +2,48 @@ package edu.kis.powp.jobs2d;
 
 import edu.kis.powp.jobs2d.command.*;
 import org.junit.Test;
-
-import java.sql.Driver;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
 public class DeepCopyCommandVisitorTest {
+
     @Test
     public void testDeepCopyCompoundCommandVisitor() {
-        SetPositionCommand setPositionCommand = new SetPositionCommand(0, 0);
-        OperateToCommand operateToCommand1 = new OperateToCommand(10, 0);
-        OperateToCommand operateToCommand2 = new OperateToCommand(10, 10);
-        OperateToCommand operateToCommand3 = new OperateToCommand(0, 10);
-        OperateToCommand operateToCommand4 = new OperateToCommand(0, 0);
-
-
-        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder("immutableCompoundCommandBuilder");
-        builder.addCommands(Arrays.asList(setPositionCommand, operateToCommand1, operateToCommand2, operateToCommand3, operateToCommand4));
-        ImmutableCompoundCommand immutableCompoundCommand = builder.build();
+        ImmutableComplexCommand nestedComplexCommand = ComplexCommandFactory.nestedShape();
 
         DeepCopyCommandVisitor visitor = new DeepCopyCommandVisitor();
 
-        immutableCompoundCommand.accept(visitor);
+        nestedComplexCommand.accept(visitor);
 
         ImmutableCompoundCommand deepCopiedCommand = visitor.getImmutableCompoundCommand();
 
-        for (int i = 0; i < 5; i++) {
-            assertEquals(immutableCompoundCommand.getCommands().get(i), deepCopiedCommand.getCommands().get(i));
-            assertNotSame(immutableCompoundCommand.getCommands().get(i), deepCopiedCommand.getCommands().get(i));
+        Iterator<DriverCommand> complexCommandIterator = nestedComplexCommand.iterator();
+
+        int i = 0;
+
+        while (complexCommandIterator.hasNext()) {
+
+            DriverCommand command = (DriverCommand) complexCommandIterator.next();
+            DriverCommand copyCommand = (DriverCommand) deepCopiedCommand.getCommands().get(i);
+            if(command instanceof OperateToCommand || command instanceof SetPositionCommand){
+                assertEquals(command, copyCommand);
+                assertNotSame(command, copyCommand);
+            }
+            else if(command instanceof ICompoundCommand){
+                ImmutableComplexCommand immutableComplexCommand = new ImmutableComplexCommand(((ImmutableComplexCommand) command).iterator(), "test1");
+                ImmutableComplexCommand immutableComplexCommandCopy = new ImmutableComplexCommand(((ImmutableComplexCommand) copyCommand).iterator(), "test2");
+
+                Iterator<DriverCommand> complexCommandIterator2 = immutableComplexCommand.iterator();
+                Iterator<DriverCommand> complexCommandIteratorCopy2 = immutableComplexCommandCopy.iterator();
+                while(complexCommandIterator2.hasNext()) {
+                    DriverCommand command2 = (DriverCommand) complexCommandIterator2.next();
+                    DriverCommand copyCommand2 = (DriverCommand) complexCommandIteratorCopy2.next();
+                    assertEquals(command2, copyCommand2);
+                    assertNotSame(command2, copyCommand2);
+                }
+            }
+            i++;
         }
     }
 
