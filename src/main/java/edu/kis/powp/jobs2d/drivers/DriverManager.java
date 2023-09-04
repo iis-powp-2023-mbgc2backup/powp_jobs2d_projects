@@ -32,8 +32,4 @@ public class DriverManager {
     public synchronized Job2dDriver getCurrentDriver() {
         return currentDriver;
     }
-
-    public Publisher getChangePublisher() {
-        return changePublisher;
-    }
 }

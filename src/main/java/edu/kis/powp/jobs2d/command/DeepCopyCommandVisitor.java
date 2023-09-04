@@ -18,7 +18,7 @@ public class DeepCopyCommandVisitor implements ICommandVisitor {
             deepCopiedCompoundCommands.add(this.deepCopiedCommand);
         }
 
-        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder();
+        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder("immutableCompundCommandBuilder");
         builder.addCommands(deepCopiedCompoundCommands);
         this.immutableCompoundCommand = builder.build();
     }

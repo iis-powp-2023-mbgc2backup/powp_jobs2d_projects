@@ -19,7 +19,7 @@ public class DeepCopyCommandVisitorTest {
         OperateToCommand operateToCommand4 = new OperateToCommand(0, 0);
 
 
-        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder();
+        ImmutableCompoundCommand.Builder builder = new ImmutableCompoundCommand.Builder("immutableCompoundCommandBuilder");
         builder.addCommands(Arrays.asList(setPositionCommand, operateToCommand1, operateToCommand2, operateToCommand3, operateToCommand4));
         ImmutableCompoundCommand immutableCompoundCommand = builder.build();
 

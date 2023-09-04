@@ -41,4 +41,20 @@ public class OperateToCommand implements DriverCommand {
         DriverCommand copy = new OperateToCommand(posX, posY);
         return copy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof OperateToCommand)) {
+            return false;
+        }
+
+        OperateToCommand c = (OperateToCommand) o;
+
+        return Integer.compare(posX, c.posX) == 0
+                && Integer.compare(posY, c.posY) == 0;
+    }
 }
