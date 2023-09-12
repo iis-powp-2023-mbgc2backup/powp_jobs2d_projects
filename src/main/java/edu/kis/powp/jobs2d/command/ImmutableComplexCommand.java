@@ -18,18 +18,7 @@ public final class ImmutableComplexCommand implements ICompoundCommand{
         List<DriverCommand> tempList = new ArrayList<>();
         while(iterator.hasNext()){
             DriverCommand command = (DriverCommand) iterator.next();
-            if(command instanceof OperateToCommand){
-                OperateToCommand operateToCommand = new OperateToCommand((OperateToCommand) command);
-                tempList.add(operateToCommand);
-            }
-            else if(command instanceof SetPositionCommand){
-                SetPositionCommand setPositionCommand = new SetPositionCommand( (SetPositionCommand) command);
-                tempList.add(setPositionCommand);
-            }
-            else if(command instanceof ICompoundCommand){
-                ImmutableComplexCommand immutableComplexCommand = new ImmutableComplexCommand(((ImmutableComplexCommand) command).iterator(), name);
-                tempList.add(immutableComplexCommand);
-            }
+            tempList.add(command.deepCopy());
         }
         this.ListOfCommands = Collections.unmodifiableList(tempList);
     }

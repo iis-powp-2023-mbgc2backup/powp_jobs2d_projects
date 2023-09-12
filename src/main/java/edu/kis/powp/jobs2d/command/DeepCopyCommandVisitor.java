@@ -14,7 +14,7 @@ public class DeepCopyCommandVisitor implements ICommandVisitor {
         while(iterator.hasNext()) {
             DriverCommand driverCommand = (DriverCommand) iterator.next();
             driverCommand.accept(this);
-            builder.addCommand(driverCommand);
+            builder.addCommand(driverCommand.deepCopy());
 
         }
         this.immutableCompoundCommand = builder.build();
