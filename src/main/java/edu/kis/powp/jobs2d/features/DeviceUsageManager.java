@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.observer.Publisher;
+import edu.kis.powp.observer.Subscriber;
 
 public class DeviceUsageManager{
     private double headDistance = 0;
@@ -10,6 +11,13 @@ public class DeviceUsageManager{
     private int yLastPosition = 0;
 
     private final Publisher distanceChangePublisher = new Publisher();
+    private static DeviceUsageManager instance = new DeviceUsageManager();
+    private boolean isLoggerObserverActive = true;
+
+
+    public static DeviceUsageManager getInstance() {
+        return instance;
+    }
 
     private double calculateDistance(int x, int y){
         double distance = Math.sqrt(Math.pow(y - yLastPosition, 2) + Math.pow(x - xLastPosition, 2));
@@ -20,14 +28,18 @@ public class DeviceUsageManager{
 
     public void calculateMovingDistance(int x, int y){
         headDistance += calculateDistance(x, y);
-        distanceChangePublisher.notifyObservers();
+        if (isLoggerObserverActive) {
+            distanceChangePublisher.notifyObservers();
+        }
     }
 
     public void calculateOperatingDistance(int x, int y){
         double distance = calculateDistance(x, y);
         headDistance += distance;
         operatingDistance += distance;
-        distanceChangePublisher.notifyObservers();
+        if (isLoggerObserverActive) {
+            distanceChangePublisher.notifyObservers();
+        }
     }
 
     public double getHeadDistance() {
@@ -41,4 +53,12 @@ public class DeviceUsageManager{
     public Publisher getDistanceChangePublisher() {
         return distanceChangePublisher;
     }
+    public void addObserver(Subscriber observer) {
+        distanceChangePublisher.addSubscriber(observer);
+    }
+
+    public void toggleLoggerObserver() {
+        isLoggerObserverActive = !isLoggerObserverActive;
+    }
+
 }

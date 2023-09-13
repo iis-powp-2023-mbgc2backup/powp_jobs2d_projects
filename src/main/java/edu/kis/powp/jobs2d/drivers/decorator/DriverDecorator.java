@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.drivers.decorator;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.drivers.PositionLoggingDriver;
 import edu.kis.powp.jobs2d.features.DeviceUsageManager;
 import edu.kis.powp.jobs2d.features.ExtensionsManager;
 
@@ -12,6 +13,7 @@ public abstract class DriverDecorator implements Job2dDriver {
     Logger logger = Logger.getLogger("global");
     private int operationCount = 0;
     private final DeviceUsageManager deviceUsageManager = new DeviceUsageManager();
+    private final PositionLoggingDriver positionLoggingDriver = new PositionLoggingDriver();
     public DeviceUsageManager getDeviceUsageManager() {
         return this.deviceUsageManager;
     }
@@ -25,13 +27,17 @@ public abstract class DriverDecorator implements Job2dDriver {
         driver.setPosition(x,y);
         if(ExtensionsManager.isDistanceLogRunning())
             deviceUsageManager.calculateMovingDistance(x,y);
+        if(ExtensionsManager.isLoggerRunning())
+            positionLoggingDriver.setPosition(x,y);
     }
 
     @Override
     public void operateTo(int x, int y) {
-        driver.operateTo(x,y);
+        //driver.operateTo(x,y);
         if(ExtensionsManager.isDistanceLogRunning())
             deviceUsageManager.calculateOperatingDistance(x,y);
+        if(ExtensionsManager.isLoggerRunning())
+            positionLoggingDriver.operateTo(x, y);
     }
 
     @Override
