@@ -33,7 +33,7 @@ public abstract class DriverDecorator implements Job2dDriver {
 
     @Override
     public void operateTo(int x, int y) {
-        //driver.operateTo(x,y);
+        driver.operateTo(x,y);
         if(ExtensionsManager.isDistanceLogRunning())
             deviceUsageManager.calculateOperatingDistance(x,y);
         if(ExtensionsManager.isLoggerRunning())
