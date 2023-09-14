@@ -2,7 +2,10 @@ package edu.kis.powp.jobs2d;
 
 import edu.kis.powp.jobs2d.command.*;
 import org.junit.Test;
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -16,34 +19,33 @@ public class DeepCopyCommandVisitorTest {
 
         nestedComplexCommand.accept(visitor);
 
-        ImmutableCompoundCommand deepCopiedCommand = visitor.getImmutableCompoundCommand();
+        List<DriverCommand> listOfCommandsCopy = visitor.getListOfCommands();
+
+        List<DriverCommand> listOfCommands = new ArrayList<>();
 
         Iterator<DriverCommand> complexCommandIterator = nestedComplexCommand.iterator();
-
-        int i = 0;
 
         while (complexCommandIterator.hasNext()) {
 
             DriverCommand command = (DriverCommand) complexCommandIterator.next();
-            DriverCommand copyCommand = (DriverCommand) deepCopiedCommand.getCommands().get(i);
             if(command instanceof OperateToCommand || command instanceof SetPositionCommand){
-                assertEquals(command, copyCommand);
-                assertNotSame(command, copyCommand);
+                listOfCommands.add((DriverCommand) command);
             }
             else if(command instanceof ICompoundCommand){
                 ImmutableComplexCommand immutableComplexCommand = new ImmutableComplexCommand(((ImmutableComplexCommand) command).iterator(), "test1");
-                ImmutableComplexCommand immutableComplexCommandCopy = new ImmutableComplexCommand(((ImmutableComplexCommand) copyCommand).iterator(), "test2");
 
                 Iterator<DriverCommand> complexCommandIterator2 = immutableComplexCommand.iterator();
-                Iterator<DriverCommand> complexCommandIteratorCopy2 = immutableComplexCommandCopy.iterator();
                 while(complexCommandIterator2.hasNext()) {
-                    DriverCommand command2 = (DriverCommand) complexCommandIterator2.next();
-                    DriverCommand copyCommand2 = (DriverCommand) complexCommandIteratorCopy2.next();
-                    assertEquals(command2, copyCommand2);
-                    assertNotSame(command2, copyCommand2);
+                    listOfCommands.add((DriverCommand) complexCommandIterator2.next());
                 }
             }
-            i++;
+        }
+
+
+        assertEquals(listOfCommands.size(), listOfCommandsCopy.size());
+        for (int i = 0; i < listOfCommands.size(); i++) {
+            assertEquals(listOfCommands.get(i), listOfCommandsCopy.get(i));
+            assertNotSame(listOfCommands.get(i), listOfCommandsCopy.get(i));
         }
     }
 
@@ -55,10 +57,10 @@ public class DeepCopyCommandVisitorTest {
 
         setPositionCommand.accept(visitor);
 
-        DriverCommand deepCopiedCommand = visitor.getDeepCopiedCommand();
+        List<DriverCommand> listOfCommands = visitor.getListOfCommands();
 
-
-        assertEquals(setPositionCommand, deepCopiedCommand);
-        assertNotSame(setPositionCommand, deepCopiedCommand);
+        assertEquals(1, listOfCommands.size());
+        assertEquals(setPositionCommand, listOfCommands.get(0));
+        assertNotSame(setPositionCommand, listOfCommands.get(0));
     }
 }
