@@ -24,6 +24,8 @@ import edu.kis.powp.jobs2d.transformations.TransformationFactory;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,6 +80,7 @@ public class TestJobs2dApp {
     private static void setupDrivers(Application application) {
         DriverComposite composite = new DriverComposite();
         Job2dDriver loggerDriver = new PositionLoggingDriver();
+        List<DeviceUsageManager> deviceUsageManagers = new ArrayList<>();
         DriverFeature.addDriver("Logger driver", loggerDriver);
         composite.add(loggerDriver);
 
@@ -86,51 +89,50 @@ public class TestJobs2dApp {
         DrawPanelController drawerController = DrawerFeature.getDrawerController();
         DistanceCountingDriver driver = new DistanceCountingDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"));
         deviceUsageManager = driver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
         DriverFeature.addDriver("Line Simulator", driver);
         DriverFeature.getDriverManager().setCurrentDriver(driver);
+        deviceUsageManagers.add(deviceUsageManager);
         composite.add(driver);
 
         driver = new DistanceCountingDriver(new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"));
 
         deviceUsageManager = driver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
         DriverFeature.addDriver("Special line Simulator", driver);
         composite.add(driver);
 
         DriverDecorator verticalFlipDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getHorizontalFlip());
         deviceUsageManager = verticalFlipDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
         DriverFeature.addDriver("Vertical flip driver", verticalFlipDriver);
+        deviceUsageManagers.add(deviceUsageManager);
         composite.add(verticalFlipDriver);
 
         DriverDecorator horizontalFlipDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getVerticalFlip());
         deviceUsageManager = horizontalFlipDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
         DriverFeature.addDriver("Horizontal flip driver", horizontalFlipDriver);
+        deviceUsageManagers.add(deviceUsageManager);
         composite.add(horizontalFlipDriver);
 
         DriverDecorator halfScaleDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getHalfScale());
         deviceUsageManager = halfScaleDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
         DriverFeature.addDriver("Half scale driver", halfScaleDriver);
+        deviceUsageManagers.add(deviceUsageManager);
         composite.add(halfScaleDriver);
 
         DriverDecorator doubleScaleDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getDoubleScale());
         deviceUsageManager = doubleScaleDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
+        deviceUsageManagers.add(deviceUsageManager);
         DriverFeature.addDriver("Double scale driver", doubleScaleDriver);
         composite.add(doubleScaleDriver);
 
         DriverDecorator clockwiseRotationDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getClockwiseRotation());
         deviceUsageManager = clockwiseRotationDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
+        deviceUsageManagers.add(deviceUsageManager);
         DriverFeature.addDriver("Clockwise rotation driver", clockwiseRotationDriver);
         composite.add(clockwiseRotationDriver);
 
         DriverDecorator counterClockwiseRotationDriver = new TransformationDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), TransformationFactory.getCounterclockwiseRotation());
         deviceUsageManager = counterClockwiseRotationDriver.getDeviceUsageManager();
-        deviceUsageManager.getDistanceChangePublisher().addSubscriber(new LoggerDistanceObserver(deviceUsageManager));
+        deviceUsageManagers.add(deviceUsageManager);
         DriverFeature.addDriver("Counterclockwise rotation Driver", counterClockwiseRotationDriver);
         composite.add(counterClockwiseRotationDriver);
 
@@ -139,6 +141,9 @@ public class TestJobs2dApp {
         composite.add(realWorldDriver);
 
         DriverFeature.addDriver("Line driver", composite);
+
+        ExtensionsManager extensionsManager = ExtensionsManagerFactory.createExtensionsManager(composite, deviceUsageManagers);
+        extensionsManager.setup(application);
 
         DriverFeature.updateDriverInfo();
     }
@@ -188,10 +193,8 @@ public class TestJobs2dApp {
                 FeatureManager.add(DrawerFeature.class);
                 FeatureManager.add(TransformationsFeature.class);
                 FeatureManager.add(DriverFeature.class);
-                FeatureManager.add(ExtensionsManager.class);
                 FeatureManager.add(RecordFeature.class);
                 FeatureManager.add(CommandsFeature.class);
-
                 FeatureManager.setupFeatures(app);
 
                 setupDrivers(app);
@@ -199,6 +202,7 @@ public class TestJobs2dApp {
                 setupCommandTests(app);
                 setupLogger(app);
                 setupWindows(app);
+
                 app.setVisibility(true);
                 app.getFreePanel().addMouseListener(
                         new MouseDrawerListener(DriverFeature.getDriverManager(),

@@ -11,13 +11,7 @@ public class DeviceUsageManager{
     private int yLastPosition = 0;
 
     private final Publisher distanceChangePublisher = new Publisher();
-    private static DeviceUsageManager instance = new DeviceUsageManager();
-    private boolean isLoggerObserverActive = true;
-
-
-    public static DeviceUsageManager getInstance() {
-        return instance;
-    }
+    private final Publisher posiotionPublisher = new Publisher();
 
     private double calculateDistance(int x, int y){
         double distance = Math.sqrt(Math.pow(y - yLastPosition, 2) + Math.pow(x - xLastPosition, 2));
@@ -28,18 +22,16 @@ public class DeviceUsageManager{
 
     public void calculateMovingDistance(int x, int y){
         headDistance += calculateDistance(x, y);
-        if (isLoggerObserverActive) {
-            distanceChangePublisher.notifyObservers();
-        }
+        distanceChangePublisher.notifyObservers();
+        posiotionPublisher.notifyObservers();
     }
 
     public void calculateOperatingDistance(int x, int y){
         double distance = calculateDistance(x, y);
         headDistance += distance;
         operatingDistance += distance;
-        if (isLoggerObserverActive) {
-            distanceChangePublisher.notifyObservers();
-        }
+        distanceChangePublisher.notifyObservers();
+        posiotionPublisher.notifyObservers();
     }
 
     public double getHeadDistance() {
@@ -50,15 +42,19 @@ public class DeviceUsageManager{
         return operatingDistance;
     }
 
+    public Publisher getPositionPublisher() {
+        return posiotionPublisher;
+    }
+
     public Publisher getDistanceChangePublisher() {
         return distanceChangePublisher;
     }
-    public void addObserver(Subscriber observer) {
-        distanceChangePublisher.addSubscriber(observer);
+
+    public int getLastXPosition() {
+        return xLastPosition;
     }
 
-    public void toggleLoggerObserver() {
-        isLoggerObserverActive = !isLoggerObserverActive;
+    public int getLastYPosition() {
+        return yLastPosition;
     }
-
 }

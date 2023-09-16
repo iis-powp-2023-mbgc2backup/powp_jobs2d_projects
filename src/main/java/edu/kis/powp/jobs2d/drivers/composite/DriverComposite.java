@@ -54,4 +54,9 @@ public class DriverComposite implements IDriverComposite {
     public Job2dDriver getDriver(int k) {
         return drivers.get("driver" + k);
     }
+
+    public void clear(){
+        drivers.clear();
+    }
+
 }
