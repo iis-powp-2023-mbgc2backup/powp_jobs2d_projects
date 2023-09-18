@@ -1,7 +1,11 @@
 package edu.kis.powp.jobs2d.drivers;
 
+import java.util.List;
+
 import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.LoggerDriver;
+import edu.kis.powp.jobs2d.drivers.composite.DriverComposite;
+import edu.kis.powp.jobs2d.features.ExtensionFeature;
 import edu.kis.powp.observer.Publisher;
 import edu.kis.powp.observer.Subscriber;
 
@@ -31,6 +35,11 @@ public class DriverManager {
      * @return Current driver.
      */
     public synchronized Job2dDriver getCurrentDriver() {
-        return currentDriver;
+        List<Job2dDriver> extensions =  ExtensionFeature.getExtensionsManager().getUsedExtensions();
+		DriverComposite driverComposite = new DriverComposite(currentDriver);
+		for (Job2dDriver driver: extensions) {
+			driverComposite.add(driver);
+		}
+		return driverComposite;
     }
 }
